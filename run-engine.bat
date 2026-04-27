@@ -8,8 +8,42 @@ SETLOCAL ENABLEDELAYEDEXPANSION
 REM Resolve script directory and move there
 SET SCRIPT_DIR=%~dp0
 cd /d "%SCRIPT_DIR%"
-echo Java version:
-java -version 2>&1 || echo [WARN] java 不可用，請確認已安裝 JDK 17+
+echo.
+echo === Java 檢查 ===
+java -version 2>nul
+if %ERRORLEVEL% neq 0 (
+  echo [WARN] Java 未在 PATH 中找到，嘗試自動偵測常見 JDK 安裝路徑...
+  set "FOUND_JAVA="
+  for %%D in (
+    "%ProgramFiles%\Java\jdk*" 
+    "%ProgramFiles(x86)%\Java\jdk*" 
+    "C:\Users\%USERNAME%\.jdks\*" 
+    "C:\Program Files\Amazon Corretto\jdk*" 
+    "C:\Program Files\Eclipse Adoptium\jdk-*" 
+    "C:\Program Files\AdoptOpenJDK\jdk*" 
+    "C:\Program Files\Zulu\zulu*"
+  ) do (
+    if exist "%%~D\bin\java.exe" (
+      set "JAVA_HOME=%%~D"
+      set "FOUND_JAVA=1"
+      goto :found_java
+    )
+  )
+  :found_java
+  if defined FOUND_JAVA (
+    echo 已偵測到 JDK: %JAVA_HOME%
+    set "PATH=%JAVA_HOME%\bin;%PATH%"
+    echo Java 版本：
+    java -version
+  ) else (
+    echo [ERROR] 未能自動偵測到 JDK 路徑。請安裝 JDK 17+，或在系統環境變數中設定 JAVA_HOME，或使用專案內的 mvnw.cmd。
+    echo 下載建議：https://adoptium.net/
+    pause
+    exit /b 1
+  )
+) else (
+  echo Java 可用。
+)
 echo.
 REM Ensure mvn available. Prefer project Maven Wrapper (mvnw.cmd) if present
 if exist "%SCRIPT_DIR%mvnw.cmd" (
