@@ -83,7 +83,7 @@ app:
 ## run-engine.bat 說明
 本專案提供 `run-engine.bat` 作為快速執行輔助：
 - 會優先使用專案中的 `mvnw.cmd`（若存在），否則使用 PATH 中的 `mvn`。
-- 若兩者皆不存在，腳本會顯示錯誤並退出，請安裝 Maven 或執行 `mvnw.cmd`。
+- 若兩者皆不存在，腳本會顯示錯誤並 pause，請安裝 Maven 或執行 `mvnw.cmd`。
 
 使用範例：
 ```bat
@@ -92,6 +92,26 @@ run-engine.bat test    :: 執行測試
 run-engine.bat run     :: 封裝並執行 jar
 run-engine.bat docker  :: docker-compose up --build
 ```
+
+雙擊 run-engine.bat 執行的注意事項：
+- 本腳本會在完成或出錯時執行 `pause`，避免視窗執行完成後立即關閉，方便查看錯誤訊息。
+- 若出現 `[WARN] Java 未在 PATH 中找到`，腳本會嘗試自動偵測常見 JDK 安裝路徑並在執行期間設定 `JAVA_HOME`。
+- 若自動偵測仍失敗，請安裝 JDK 17+，或手動設定系統環境變數 `JAVA_HOME`，並將 `%JAVA_HOME%\bin` 加入 `PATH`。
+
+設定範例（暫時於目前視窗生效）：
+```bat
+set "JAVA_HOME=C:\Program Files\Java\jdk-17"
+set "PATH=%JAVA_HOME%\bin;%PATH%"
+```
+永久設定（建議，系統層級）：
+```bat
+setx JAVA_HOME "C:\Program Files\Java\jdk-17"
+```
+
+若不想安裝全域 Maven，可使用專案內的 Maven Wrapper：
+- Windows：`mvnw.cmd clean package`。
+- Unix/macOS：`./mvnw clean package`。
+
 
 ## 文件
 
