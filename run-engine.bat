@@ -6,14 +6,25 @@ SETLOCAL ENABLEDELAYEDEXPANSION
 REM Resolve script directory and move there
 SET SCRIPT_DIR=%~dp0
 cd /d "%SCRIPT_DIR%"
-nREM Ensure mvn is available; if not, try default local install path
+
+REM Function: ensure mvn available. If not, download a local Maven into .maven folder and use it.
 where mvn >nul 2>&1
 IF ERRORLEVEL 1 (
-  if exist "D:\\tools\\apache-maven-3.9.6\\bin\\mvn.cmd" (
-    set PATH=D:\tools\apache-maven-3.9.6\bin;%PATH%
+  REM check project-local .maven
+  if exist "%SCRIPT_DIR%.maven\apache-maven-3.9.6\bin\mvn.cmd" (
+    set PATH=%SCRIPT_DIR%.maven\apache-maven-3.9.6\bin;%PATH%
   ) else (
-    echo WARNING: mvn not found in PATH and default path not present. Build may fail.
+    echo mvn not found. Attempting to download Apache Maven 3.9.6 to project-local folder (.maven)
+    powershell -Command "Set-StrictMode -Version Latest; $out = '%SCRIPT_DIR%'.TrimEnd('\\') + '\\.maven'; if (-not (Test-Path $out)) { New-Item -ItemType Directory -Path $out | Out-Null }; $zip = Join-Path $out 'apache-maven-3.9.6-bin.zip'; if (-not (Test-Path $zip)) { Invoke-WebRequest -Uri 'https://archive.apache.org/dist/maven/maven-3/3.9.6/binaries/apache-maven-3.9.6-bin.zip' -OutFile $zip -UseBasicParsing } ; Expand-Archive -LiteralPath $zip -DestinationPath $out -Force"
+    IF ERRORLEVEL 1 (
+      echo WARNING: Auto-download of Maven failed. If you have Maven installed, add it to PATH.
+    ) ELSE (
+      set PATH=%SCRIPT_DIR%.maven\apache-maven-3.9.6\bin;%PATH%
+      echo Apache Maven downloaded to %SCRIPT_DIR%.maven\apache-maven-3.9.6 and will be used for this run.
+    )
   )
+) ELSE (
+  REM mvn exists in PATH - use it
 )
 nif "%1"=="build" (
   echo ==== Building project ====
