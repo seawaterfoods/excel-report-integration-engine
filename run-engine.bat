@@ -1,7 +1,7 @@
 @echo off
 chcp 65001 >nul
 echo ========================================
-echo Excel Report Integration Engine - 執行輔助腳本
+echo Excel Report Integration Engine - helper
 echo ========================================
 echo.
 SETLOCAL ENABLEDELAYEDEXPANSION
@@ -11,28 +11,28 @@ cd /d "%SCRIPT_DIR%"
 echo.
 REM If no parameter, show interactive menu for double-click use
 if "%1"=="" (
-  echo 選擇操作:
-  echo  1) build (封裝)
-  echo  2) test (執行測試)
-  echo  3) run (封裝並執行)
-  echo  4) docker (docker-compose up)
+  echo Choose action:
+  echo  1) build (package)
+  echo  2) test
+  echo  3) run (package and run)
+  echo  4) docker
   echo  5) exit
-  set /p "CHOICE=輸入選項號碼並按 Enter [1-5] (預設 3): "
+  set /p "CHOICE=Enter number [1-5] (default 3): "
   if "%CHOICE%"=="" set "CHOICE=3"
   if "%CHOICE%"=="1" ( call "%~f0" build & exit /b 0 )
   if "%CHOICE%"=="2" ( call "%~f0" test & exit /b 0 )
   if "%CHOICE%"=="3" ( call "%~f0" run & exit /b 0 )
   if "%CHOICE%"=="4" ( call "%~f0" docker & exit /b 0 )
   if "%CHOICE%"=="5" (
-    echo 取消
+    echo Cancel
     pause
     exit /b 0
   )
 )
-echo === Java 檢查 ===
-java -version 2>nul
+echo Checking Java...
+java -version >nul 2>&1
 if %ERRORLEVEL% neq 0 (
-  echo [WARN] Java 未在 PATH 中找到，嘗試自動偵測常見 JDK 安裝路徑...
+  echo [WARN] Java not found in PATH. Attempting common locations...
   set "FOUND_JAVA="
   for %%D in (
     "%ProgramFiles%\Java\jdk*"
@@ -51,41 +51,38 @@ if %ERRORLEVEL% neq 0 (
   )
   :found_java
   if defined FOUND_JAVA (
-    echo 已偵測到 JDK: %JAVA_HOME%
+    echo Detected JDK: %JAVA_HOME%
     set "PATH=%JAVA_HOME%\bin;%PATH%"
-    echo Java 版本:
     java -version
   ) else (
-    echo [WARN] 未能自動偵測到 JDK 路徑。
-    set /p "JAVA_INPUT=請輸入 JDK 安裝目錄 (或按 Enter 取消): "
+    set /p "JAVA_INPUT=Enter JDK install path (or press Enter to cancel): "
     if "%JAVA_INPUT%"=="" (
-      echo 取消。請安裝 JDK 17+ 或設定 JAVA_HOME 後重試。
+      echo Cancelled. Please install JDK 17+ or set JAVA_HOME.
       pause
       exit /b 1
     )
     if exist "%JAVA_INPUT%\bin\java.exe" (
       set "JAVA_HOME=%JAVA_INPUT%"
       set "PATH=%JAVA_HOME%\bin;%PATH%"
-      echo 已設定 JAVA_HOME=%JAVA_HOME%
-      echo Java 版本:
+      echo JAVA_HOME set to %JAVA_HOME%
       java -version
     ) else (
-      echo 找不到 %JAVA_INPUT%\bin\java.exe，請確認路徑正確後重試。
+      echo Could not find %JAVA_INPUT%\bin\java.exe
       pause
       exit /b 1
     )
   )
 ) else (
-  echo Java 可用。
+  echo Java available.
 )
-echo.
+
 REM Ensure mvn available. Prefer project Maven Wrapper (mvnw.cmd) if present
 if exist "%SCRIPT_DIR%mvnw.cmd" (
   set "MVN_CMD=%SCRIPT_DIR%mvnw.cmd"
 ) else (
   where mvn >nul 2>&1
   IF ERRORLEVEL 1 (
-    echo ERROR: 未找到 mvn 或 mvnw.cmd。請安裝 Maven 或使用專案內的 mvnw.cmd。
+    echo ERROR: mvn or mvnw.cmd not found. Install Maven or use mvnw.cmd.
     pause
     exit /b 1
   ) ELSE (
@@ -98,11 +95,11 @@ if "%1"=="build" (
   echo ==== Building project ====
   %MVN_CMD% clean package -DskipTests
   if ERRORLEVEL 1 (
-    echo [ERROR] build 失敗
+    echo [ERROR] build failed
     pause
     exit /b %ERRORLEVEL%
   )
-  echo build 完成
+  echo build completed
   pause
   exit /b 0
 )
@@ -110,11 +107,11 @@ if "%1"=="test" (
   echo ==== Running tests ====
   %MVN_CMD% test
   if ERRORLEVEL 1 (
-    echo [ERROR] 測試失敗
+    echo [ERROR] tests failed
     pause
     exit /b %ERRORLEVEL%
   )
-  echo 測試完成
+  echo tests completed
   pause
   exit /b 0
 )
