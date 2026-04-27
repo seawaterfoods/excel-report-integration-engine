@@ -1,0 +1,14 @@
+version: '3.8'
+
+services:
+  engine:
+    build: .
+    container_name: excel-report-engine
+    volumes:
+      - ./import:/data/import
+      - ./output:/data/output
+      - ./config:/app/config
+      - ./logs:/app/logs
+    environment:
+      - APP_IMPORT_DIR=/data/import
+      - APP_OUTPUT_DIR=/data/output
