@@ -33,7 +33,7 @@ public class FileService {
      * 回傳 ReportTask 清單。
      */
     public List<ReportTask> resolveReportTasks() throws IOException {
-        Path importRoot = Path.of(appConfig.getImportDir()).toAbsolutePath();
+        Path importRoot = Path.of(appConfig.getImportDir()).toAbsolutePath().normalize();
         if (!Files.isDirectory(importRoot)) {
             log.error("匯入目錄不存在: {}", importRoot);
             return List.of();
@@ -141,7 +141,7 @@ public class FileService {
         List<Path> importFiles = findImportFiles(reportDir);
         ScopeConfig scopeConfig = loadScopeConfig(templetDir);
 
-        Path outputDir = Path.of(appConfig.getOutputDir()).toAbsolutePath()
+        Path outputDir = Path.of(appConfig.getOutputDir()).toAbsolutePath().normalize()
                 .resolve(year).resolve(month);
 
         String outputFileName = FileNameUtil.generateOutputFileName(templateFile.getFileName().toString());

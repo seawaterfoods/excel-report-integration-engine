@@ -52,8 +52,7 @@
             <artifactId>jackson-datatype-jsr310</artifactId>
         </dependency>
 
-        <!-- Lombok -->
-        <!-- Removed: incompatible with Java 25 -->
+        <!-- Lombok 已移除：開發環境曾為 JDK 25 不相容，改用手動 getter/setter/builder -->
 
         <!-- Testing -->
         <dependency>

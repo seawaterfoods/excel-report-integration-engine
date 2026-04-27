@@ -10,3 +10,7 @@ logging:
     com.excel.engine: INFO
   file:
     name: ./logs/engine.log
+
+spring:
+  main:
+    banner-mode: off
