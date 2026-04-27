@@ -22,12 +22,26 @@ Excel 數據自動化整合工具 — 自動讀取多份匯入檔，合併至樣
 
 ## 快速開始
 
-### 本地執行
+### 本地執行（建議：使用 mvnw，無需事先安裝 Maven）
 
 ```bash
-mvn clean package -DskipTests
-java -jar target/excel-report-integration-engine-1.0.0-SNAPSHOT.jar \
-  --spring.config.location=file:./config/application.yml
+# Windows
+mvnw.cmd clean package -DskipTests
+mvnw.cmd spring-boot:run
+
+# Unix / macOS
+./mvnw clean package -DskipTests
+./mvnw spring-boot:run
+```
+
+### 直接執行已封裝的 jar
+
+```bash
+# 編譯（或使用 mvnw）
+./mvnw.cmd clean package -DskipTests
+
+# 執行
+java -jar target/excel-report-integration-engine-1.0.0-SNAPSHOT.jar --spring.config.location=file:./config/application.yml
 ```
 
 ### Docker 執行
@@ -35,6 +49,15 @@ java -jar target/excel-report-integration-engine-1.0.0-SNAPSHOT.jar \
 ```bash
 docker-compose up
 ```
+
+### 快速入門（非開發人員）
+- 建議流程：
+  1. 下載/複製本專案到機器並解壓（或 git clone）。
+  2. 確認已安裝 JDK 17+（或依指示使用 mvnw 以讓 Wrapper 自行下載 Maven）。
+  3. 在專案根目錄雙擊 `run-engine.bat` → 選擇 `run`（或在命令列執行 `run-engine.bat run`）。
+  4. 程式完成後，報表輸出於 `output/{年}/{月}/`，詳細執行資訊見 `logs/report.json`。
+
+（腳本會在完成或錯誤時 `pause`，以免視窗立即關閉，方便檢視訊息）
 
 ## 目錄結構
 
