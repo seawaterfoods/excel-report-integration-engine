@@ -1,0 +1,19 @@
+app:
+  import-dir: ./import
+  output-dir: ./output
+  process-year:                              # 民國年 (留空=全部)
+  process-month:                             # 月份 (留空=全部)
+  process-reports:                           # 報表名稱，逗號分隔 (留空=全部)
+
+logging:
+  level:
+    com.excel.engine: INFO
+  file:
+    name: ./logs/engine.log
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+
+spring:
+  main:
+    banner-mode: off

@@ -1,0 +1,12 @@
+app:
+  import-dir: ./import
+  output-dir: ./output
+  # process-year: 115
+  # process-month: 01
+  # process-reports: 各式準備金提存時間調查表_v1.1
+
+logging:
+  level:
+    com.excel.engine: INFO
+  file:
+    name: ./logs/engine.log
