@@ -46,10 +46,8 @@ if %ERRORLEVEL% neq 0 (
     if exist "%%~D\bin\java.exe" (
       set "JAVA_HOME=%%~D"
       set "FOUND_JAVA=1"
-      goto :found_java
     )
   )
-  :found_java
   if defined FOUND_JAVA (
     echo Detected JDK: %JAVA_HOME%
     set "PATH=%JAVA_HOME%\bin;%PATH%"
