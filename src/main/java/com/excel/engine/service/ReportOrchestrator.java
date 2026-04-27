@@ -127,7 +127,9 @@ public class ReportOrchestrator implements CommandLineRunner {
             // 開啟產出檔工作簿
             try (Workbook outputWb = excelService.openWorkbook(outputPath)) {
 
-                // 逐檔處理
+                boolean hasDuplicates = false;
+
+                // 逐檔處理 (全部掃描完畢後再判斷是否中止)
                 for (Path importFile : importFiles) {
                     String importFileName = importFile.getFileName().toString();
                     log.info("處理匯入檔: {}", importFileName);
@@ -145,24 +147,30 @@ public class ReportOrchestrator implements CommandLineRunner {
                     List<ValidationError> dupErrors = validationService.validateNoDuplicates(writeTracker, uniqueCells);
                     if (!dupErrors.isEmpty()) {
                         allErrors.addAll(dupErrors);
-                        log.error("報表 {} 偵測到重複座標，中止處理", reportLabel);
-                        // 刪除不完整的輸出檔
-                        Files.deleteIfExists(outputPath);
-                        return resultBuilder
-                                .success(false)
-                                .filesProcessed(importFiles.indexOf(importFile))
-                                .errors(allErrors)
-                                .build();
+                        hasDuplicates = true;
                     }
 
-                    // 寫入產出檔
-                    excelService.writeCellData(outputWb, uniqueCells);
-                    totalCellsWritten += uniqueCells.size();
+                    // 僅在無重複時寫入產出檔
+                    if (!hasDuplicates) {
+                        excelService.writeCellData(outputWb, uniqueCells);
+                        totalCellsWritten += uniqueCells.size();
+                    }
 
-                    // 更新追蹤器
+                    // 更新追蹤器 (使用 putIfAbsent 保留首次寫入來源，以偵測後續所有重複)
                     for (CellData cd : uniqueCells) {
-                        writeTracker.put(cd.getCoordinate(), cd.getSourceFile());
+                        writeTracker.putIfAbsent(cd.getCoordinate(), cd.getSourceFile());
                     }
+                }
+
+                // 若有重複座標，刪除不完整輸出並回報所有錯誤
+                if (hasDuplicates) {
+                    log.error("報表 {} 偵測到重複座標 (共 {} 處)，中止匯出", reportLabel, allErrors.size());
+                    Files.deleteIfExists(outputPath);
+                    return resultBuilder
+                            .success(false)
+                            .filesProcessed(importFiles.size())
+                            .errors(allErrors)
+                            .build();
                 }
 
                 // 儲存產出檔
