@@ -36,10 +36,24 @@ if %ERRORLEVEL% neq 0 (
     echo Java 版本：
     java -version
   ) else (
-    echo [ERROR] 未能自動偵測到 JDK 路徑。請安裝 JDK 17+，或在系統環境變數中設定 JAVA_HOME，或使用專案內的 mvnw.cmd。
-    echo 下載建議：https://adoptium.net/
-    pause
-    exit /b 1
+    echo [WARN] 未能自動偵測到 JDK 路徑。
+    set /p "JAVA_INPUT=請輸入 JDK 安裝目錄 (或按 Enter 取消): "
+    if "%JAVA_INPUT%"=="" (
+      echo 取消。請安裝 JDK 17+ 或設定 JAVA_HOME 並重試。
+      pause
+      exit /b 1
+    )
+    if exist "%JAVA_INPUT%\bin\java.exe" (
+      set "JAVA_HOME=%JAVA_INPUT%"
+      set "PATH=%JAVA_HOME%\bin;%PATH%"
+      echo 已設定 JAVA_HOME=%JAVA_HOME%
+      echo Java 版本：
+      java -version
+    ) else (
+      echo 找不到 %JAVA_INPUT%\bin\java.exe，請確認路徑正確後重試。
+      pause
+      exit /b 1
+    )
   )
 ) else (
   echo Java 可用。
