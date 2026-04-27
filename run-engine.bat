@@ -9,6 +9,26 @@ REM Resolve script directory and move there
 SET SCRIPT_DIR=%~dp0
 cd /d "%SCRIPT_DIR%"
 echo.
+REM 若未帶參數，顯示互動式選單（方便雙擊使用者）
+if "%1"=="" (
+  echo 選擇操作：
+  echo  1) build (封裝)
+  echo  2) test (執行測試)
+  echo  3) run (封裝並執行)
+  echo  4) docker (docker-compose up)
+  echo  5) exit
+  set /p "CHOICE=輸入選項號碼並按 Enter [1-5] (預設 3): "
+  if "%CHOICE%"=="" set "CHOICE=3"
+  if "%CHOICE%"=="1" ( call "%~f0" build & exit /b 0 )
+  if "%CHOICE%"=="2" ( call "%~f0" test & exit /b 0 )
+  if "%CHOICE%"=="3" ( call "%~f0" run & exit /b 0 )
+  if "%CHOICE%"=="4" ( call "%~f0" docker & exit /b 0 )
+  if "%CHOICE%"=="5" (
+    echo 取消
+    pause
+    exit /b 0
+  )
+)
 echo === Java 檢查 ===
 java -version 2>nul
 if %ERRORLEVEL% neq 0 (
