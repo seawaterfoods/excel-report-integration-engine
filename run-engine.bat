@@ -9,7 +9,7 @@ REM Resolve script directory and move there
 SET SCRIPT_DIR=%~dp0
 cd /d "%SCRIPT_DIR%"
 echo.
-REM If no parameter, show interactive menu for double-click use
+REM Interactive menu when no parameter (safe parsing)
 if "%1"=="" (
   echo Choose action:
   echo  1) build (package)
@@ -19,15 +19,22 @@ if "%1"=="" (
   echo  5) exit
   set /p "CHOICE=Enter number [1-5] (default 3): "
   if "%CHOICE%"=="" set "CHOICE=3"
-  if "%CHOICE%"=="1" ( call "%~f0" build & exit /b 0 )
-  if "%CHOICE%"=="2" ( call "%~f0" test & exit /b 0 )
-  if "%CHOICE%"=="3" ( call "%~f0" run & exit /b 0 )
-  if "%CHOICE%"=="4" ( call "%~f0" docker & exit /b 0 )
+  if "%CHOICE%"=="1" set "CMD=build"
+  if "%CHOICE%"=="2" set "CMD=test"
+  if "%CHOICE%"=="3" set "CMD=run"
+  if "%CHOICE%"=="4" set "CMD=docker"
   if "%CHOICE%"=="5" (
     echo Cancel
     pause
     exit /b 0
   )
+)
+
+REM Map selected CMD to ARG (used below). If script launched with parameter, use that instead.
+if defined CMD (
+  set "ARG=%CMD%"
+) else (
+  set "ARG=%~1"
 )
 echo Checking Java...
 java -version >nul 2>&1
@@ -89,7 +96,7 @@ if exist "%SCRIPT_DIR%mvnw.cmd" (
 )
 echo Using: %MVN_CMD%
 echo.
-if "%1"=="build" (
+if "%ARG%"=="build" (
   echo ==== Building project ====
   %MVN_CMD% clean package -DskipTests
   if ERRORLEVEL 1 (
@@ -101,7 +108,7 @@ if "%1"=="build" (
   pause
   exit /b 0
 )
-if "%1"=="test" (
+if "%ARG%"=="test" (
   echo ==== Running tests ====
   %MVN_CMD% test
   if ERRORLEVEL 1 (
@@ -113,7 +120,7 @@ if "%1"=="test" (
   pause
   exit /b 0
 )
-if "%1"=="run" (
+if "%ARG%"=="run" (
   echo ==== Packaging and running ====
   %MVN_CMD% clean package -DskipTests
   if ERRORLEVEL 1 (
@@ -134,7 +141,7 @@ if "%1"=="run" (
   pause
   exit /b %ERRORLEVEL%
 )
-if "%1"=="docker" (
+if "%ARG%"=="docker" (
   echo ==== Docker compose up (build) ====
   docker-compose up --build
   pause
