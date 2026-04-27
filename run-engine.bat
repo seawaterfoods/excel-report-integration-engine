@@ -7,38 +7,31 @@ REM Resolve script directory and move there
 SET SCRIPT_DIR=%~dp0
 cd /d "%SCRIPT_DIR%"
 
-REM Function: ensure mvn available. If not, download a local Maven into .maven folder and use it.
-where mvn >nul 2>&1
-IF ERRORLEVEL 1 (
-  REM check project-local .maven
-  if exist "%SCRIPT_DIR%.maven\apache-maven-3.9.6\bin\mvn.cmd" (
-    set PATH=%SCRIPT_DIR%.maven\apache-maven-3.9.6\bin;%PATH%
-  ) else (
-    echo mvn not found. Attempting to download Apache Maven 3.9.6 to project-local folder (.maven)
-    powershell -Command "Set-StrictMode -Version Latest; $out = '%SCRIPT_DIR%'.TrimEnd('\\') + '\\.maven'; if (-not (Test-Path $out)) { New-Item -ItemType Directory -Path $out | Out-Null }; $zip = Join-Path $out 'apache-maven-3.9.6-bin.zip'; if (-not (Test-Path $zip)) { Invoke-WebRequest -Uri 'https://archive.apache.org/dist/maven/maven-3/3.9.6/binaries/apache-maven-3.9.6-bin.zip' -OutFile $zip -UseBasicParsing } ; Expand-Archive -LiteralPath $zip -DestinationPath $out -Force"
-    IF ERRORLEVEL 1 (
-      echo WARNING: Auto-download of Maven failed. If you have Maven installed, add it to PATH.
-    ) ELSE (
-      set PATH=%SCRIPT_DIR%.maven\apache-maven-3.9.6\bin;%PATH%
-      echo Apache Maven downloaded to %SCRIPT_DIR%.maven\apache-maven-3.9.6 and will be used for this run.
-    )
+REM Ensure mvn available. Prefer project Maven Wrapper (mvnw.cmd) if present
+if exist "%SCRIPT_DIR%mvnw.cmd" (
+  set "MVN_CMD=%SCRIPT_DIR%mvnw.cmd"
+) else (
+  where mvn >nul 2>&1
+  IF ERRORLEVEL 1 (
+    echo ERROR: No mvn in PATH and mvnw.cmd not found. Please run mvnw.cmd or install Maven and add to PATH.
+    exit /b 1
+  ) ELSE (
+    set "MVN_CMD=mvn"
   )
-) ELSE (
-  REM mvn exists in PATH - use it
 )
 nif "%1"=="build" (
   echo ==== Building project ====
-  mvn clean package -DskipTests
+  %MVN_CMD% clean package -DskipTests
   exit /b %ERRORLEVEL%
 )
 nif "%1"=="test" (
   echo ==== Running tests ====
-  mvn test
+  %MVN_CMD% test
   exit /b %ERRORLEVEL%
 )
 nif "%1"=="run" (
   echo ==== Packaging and running ====
-  mvn clean package -DskipTests
+  %MVN_CMD% clean package -DskipTests
   if ERRORLEVEL 1 (
     echo Build failed. Aborting run.
     exit /b %ERRORLEVEL%

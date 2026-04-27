@@ -62,6 +62,37 @@ app:
   process-reports:             # 報表名，逗號分隔 (留空=全部)
 ```
 
+## 使用 mvnw（Maven Wrapper）
+專案已包含 Maven Wrapper (`mvnw` / `mvnw.cmd` 以及 `.mvn/wrapper`)：
+- 建議使用 `mvnw`（Unix/macOS）或 `mvnw.cmd`（Windows），可在沒有全域安裝 Maven 時自動下載對應 Maven 版本。
+- Windows 範例：在專案根目錄執行：
+  ```bat
+  mvnw.cmd clean package -DskipTests
+  mvnw.cmd test
+  mvnw.cmd spring-boot:run
+  ```
+- Unix 範例：
+  ```bash
+  ./mvnw clean package -DskipTests
+  ./mvnw test
+  ./mvnw spring-boot:run
+  ```
+
+如果希望使用系統已安裝的 Maven，請確保 `mvn` 可於 PATH 中存取。
+
+## run-engine.bat 說明
+本專案提供 `run-engine.bat` 作為快速執行輔助：
+- 會優先使用專案中的 `mvnw.cmd`（若存在），否則使用 PATH 中的 `mvn`。
+- 若兩者皆不存在，腳本會顯示錯誤並退出，請安裝 Maven 或執行 `mvnw.cmd`。
+
+使用範例：
+```bat
+run-engine.bat build   :: 封裝 (會使用 mvnw 或 mvn)
+run-engine.bat test    :: 執行測試
+run-engine.bat run     :: 封裝並執行 jar
+run-engine.bat docker  :: docker-compose up --build
+```
+
 ## 文件
 
 | 文件 | 說明 |
