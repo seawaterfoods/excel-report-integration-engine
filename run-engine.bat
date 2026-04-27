@@ -1,7 +1,7 @@
 @echo off
 chcp 65001 >nul
 echo ========================================
-echo  Excel Report Integration Engine - 執行輔助腳本
+echo Excel Report Integration Engine - 執行輔助腳本
 echo ========================================
 echo.
 SETLOCAL ENABLEDELAYEDEXPANSION
@@ -9,9 +9,9 @@ REM Resolve script directory and move there
 SET SCRIPT_DIR=%~dp0
 cd /d "%SCRIPT_DIR%"
 echo.
-REM 若未帶參數，顯示互動式選單（方便雙擊使用者）
+REM If no parameter, show interactive menu for double-click use
 if "%1"=="" (
-  echo 選擇操作：
+  echo 選擇操作:
   echo  1) build (封裝)
   echo  2) test (執行測試)
   echo  3) run (封裝並執行)
@@ -35,12 +35,12 @@ if %ERRORLEVEL% neq 0 (
   echo [WARN] Java 未在 PATH 中找到，嘗試自動偵測常見 JDK 安裝路徑...
   set "FOUND_JAVA="
   for %%D in (
-    "%ProgramFiles%\Java\jdk*" 
-    "%ProgramFiles(x86)%\Java\jdk*" 
-    "C:\Users\%USERNAME%\.jdks\*" 
-    "C:\Program Files\Amazon Corretto\jdk*" 
-    "C:\Program Files\Eclipse Adoptium\jdk-*" 
-    "C:\Program Files\AdoptOpenJDK\jdk*" 
+    "%ProgramFiles%\Java\jdk*"
+    "%ProgramFiles(x86)%\Java\jdk*"
+    "C:\Users\%USERNAME%\.jdks\*"
+    "C:\Program Files\Amazon Corretto\jdk*"
+    "C:\Program Files\Eclipse Adoptium\jdk*"
+    "C:\Program Files\AdoptOpenJDK\jdk*"
     "C:\Program Files\Zulu\zulu*"
   ) do (
     if exist "%%~D\bin\java.exe" (
@@ -53,13 +53,13 @@ if %ERRORLEVEL% neq 0 (
   if defined FOUND_JAVA (
     echo 已偵測到 JDK: %JAVA_HOME%
     set "PATH=%JAVA_HOME%\bin;%PATH%"
-    echo Java 版本：
+    echo Java 版本:
     java -version
   ) else (
     echo [WARN] 未能自動偵測到 JDK 路徑。
     set /p "JAVA_INPUT=請輸入 JDK 安裝目錄 (或按 Enter 取消): "
     if "%JAVA_INPUT%"=="" (
-      echo 取消。請安裝 JDK 17+ 或設定 JAVA_HOME 並重試。
+      echo 取消。請安裝 JDK 17+ 或設定 JAVA_HOME 後重試。
       pause
       exit /b 1
     )
@@ -67,7 +67,7 @@ if %ERRORLEVEL% neq 0 (
       set "JAVA_HOME=%JAVA_INPUT%"
       set "PATH=%JAVA_HOME%\bin;%PATH%"
       echo 已設定 JAVA_HOME=%JAVA_HOME%
-      echo Java 版本：
+      echo Java 版本:
       java -version
     ) else (
       echo 找不到 %JAVA_INPUT%\bin\java.exe，請確認路徑正確後重試。
