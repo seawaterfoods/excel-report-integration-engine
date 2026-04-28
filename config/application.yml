@@ -1,13 +1,12 @@
 app:
-  import-dir: ./import
-  output-dir: ./output
+  import-dir: ./import               # 來源檔案根目錄
+  output-dir: ./output               # 輸出根目錄
+  process-year:                      # 民國年 (留空=全部)
+  process-month:                     # 月份 (留空=全部)
+  process-reports:                   # 報表名，逗號分隔 (留空=全部)
 
 logging:
   level:
-    com.excel.engine: INFO
+    com.excel.engine: ERROR           # 日誌等級: DEBUG / INFO / WARN / ERROR
   file:
-    name: ./logs/engine.log
-
-spring:
-  main:
-    banner-mode: off
+    name: ./logs/report.log
